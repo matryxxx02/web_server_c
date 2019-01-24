@@ -4,7 +4,13 @@ Creation d'un serveur WEB
 
 nom du projet : (il faut en trouver un !!)
 
-participant : Nicolas Pereira, Nicolas Fernandes
-
 les ressources qui sont sur moodle sont deja dans le dossier
 
+webserveur : fichier ressource
+
+
+
+info sur git :
+ 
+remote: on peux changer le depot "origin"
+branche: on peux utiliser, demander au prof dans ce cas il expliqquera
