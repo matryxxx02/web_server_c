@@ -18,6 +18,6 @@ int creer_serveur(int port){
 	saddr.sin_addr.s_addr = INADDR_ANY; /* écoute sur toutes les interfaces */
 
 	//rattachement de la socket a une adresse et un port
-	bind(socket_serveur, const struct sockaddr *addr, socklen_t addrlen);
+	bind(socket_serveur, saddr, socklen_t addrlen);
 
 }
