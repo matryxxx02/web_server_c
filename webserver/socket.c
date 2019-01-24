@@ -22,4 +22,9 @@ int creer_serveur(int port){
 		perror("bind socker_serveur");
 		/* traitement de l’erreur */
 	}
+
+	if ( listen ( socket_serveur , 10) == -1) {
+		perror ( " listen socket_serveur " );
+		/* traitement d ’ erreur */
+	}
 }
