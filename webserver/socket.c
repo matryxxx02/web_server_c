@@ -10,11 +10,10 @@ int creer_serveur(int port){
 	}
 
 	//Attachement de la socket serveur sur toutes les interfaces
-		struct sockaddr_in saddr{
-		saddr.sin_family = AF_INET; /* Socket ipv4 */
-		saddr.sin_port = htons(8080); /* Port d’écoute */
-		saddr.sin_addr.s_addr = INADDR_ANY; /* écoute sur toutes les interfaces */
-	}
+	struct sockaddr_in saddr;
+	saddr.sin_family = AF_INET; /* Socket ipv4 */
+	saddr.sin_port = htons(8080); /* Port d’écoute */
+	saddr.sin_addr.s_addr = INADDR_ANY; /* écoute sur toutes les interfaces */
 
 
 	//rattachement de la socket a une adresse et un port
