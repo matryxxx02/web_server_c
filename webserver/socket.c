@@ -2,7 +2,6 @@
 #include <sys/socket.h>
 
 int creer_serveur(int port){
-
 	//s descripteur du socket serveur
 	int socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_serveur == -1){
@@ -24,18 +23,10 @@ int creer_serveur(int port){
 		/* traitement de l’erreur */
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
+	if ( listen ( socket_serveur , 10) == -1) {
+		perror ( " listen socket_serveur " );
+		/* traitement d ’ erreur */
+	}
 
 	int socket_client;
 	socket_client = accept(socket_serveur, NULL, NULL);
