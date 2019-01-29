@@ -33,13 +33,19 @@ int creer_serveur(int port){
 	//rattachement de la socket a une adresse et un port
 	if (bind(socket_serveur, (struct sockaddr *)&saddr, sizeof(saddr)) == -1) {
 		perror("erreur lors du bind du socker_serveur");
+		return -1;
 		/* traitement de l’erreur */
 	}
 
-	if ( listen ( socket_serveur , 10) == -1) {
+	if (listen(socket_serveur, 10) == -1) {
 		perror ( " erreur lors de l'execution de listen avec le socket_serveur " );
 		/* traitement d ’ erreur */
 	}
+
+	return socket_serveur;
+}
+
+int accept_(int socket_serveur){
 
 	int socket_client;
 	socket_client = accept(socket_serveur, NULL, NULL);
@@ -48,9 +54,7 @@ int creer_serveur(int port){
 		/* traitement d’erreur */
 	}
 
-	/* On peut maintenant dialoguer avec le client */
-	const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
-	write(socket_client , message_bienvenue , strlen(message_bienvenue));
+	return socket_client;
 
-	return 0;
 }
+
