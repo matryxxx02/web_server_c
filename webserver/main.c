@@ -3,10 +3,24 @@
 # include <string.h>
 # include <unistd.h>
 # include <signal.h>
+#include <sys/wait.h>
 
 #define BLOCK_SIZE 1024
 
+void traitement_signal(int sig) {
+	printf("Signal %d reçu\n", sig);
+}
+
 void initialiser_signaux(void){
+	//processus zombies
+	struct sigaction sa;
+	sa.sa_handler = traitement_signal; sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD , &sa, NULL) == -1) {
+		perror("sigaction(SIGCHLD)");
+	}
+
+	//initialise le signal lorsqu'il n'y a plus declient
 	if (signal(SIGPIPE , SIG_IGN) == SIG_ERR) {
 		perror("signal");
 	}
@@ -34,6 +48,7 @@ int main ( int argc , char ** argv ) {
 
 		int pid = fork();
 		if(pid==0){
+			//dans le fils
 
 			/* On peut maintenant dialoguer avec le client */
 			const char * message_bienvenue = "Bonjour,\n bienvenue sur notre serveur en construction !!\n";
@@ -54,8 +69,12 @@ int main ( int argc , char ** argv ) {
 			}
 
 		}else{
+			//dans le pere
 			close(socket_client);
 		}
+		int statut;
+     	int options = 0;
+      	waitpid(pid, &statut, options);
 		
 	}
 
