@@ -68,14 +68,15 @@ int main ( int argc , char ** argv ) {
 				write(socket_client,&buf,s);
 			}
 
+			int statut;
+    	 	int options = 0;
+	      	waitpid(pid, &statut, options);
+
+
 		}else{
 			//dans le pere
 			close(socket_client);
-		}
-		int statut;
-     	int options = 0;
-      	waitpid(pid, &statut, options);
-		
+		}		
 	}
 
 
