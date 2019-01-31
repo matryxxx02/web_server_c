@@ -1,0 +1,12 @@
+
+3.2.1 Test de votre programme : 
+
+	1. Cela deconnecte le client.
+
+	2. Cela affiche :"Connection to localhost port 8080 [tcp/search-agent] succeeded!" l'option -z sert a verifier si la connection au serveur localhost et au port 8080 est possible sans envoyer de données au serveur (Connection/Deconnection)
+	Cela STOP le serveur a cause du write qui ecrit vers un client qui c'est deconnecté, il recoit donc un signal comme avec les pipes qui kill le processus.
+
+	3. la connection a été refusée, " Unable to connect to remote host" ::1 est une adresse en ipv6 qu'on ne gère pas dans notre serveur.
+
+	4. le 2 eme client se connecte mais le. serveur ne le traite pas puisque qu'il traite le premier client. Il faut donc que le premier client se deconnecte pour revenir au accept du debut et traiter ce client. Notre serveur gère qu'un seul client a la fois ! il va falloir cree un processus a chaque fois qu'un client se connecte !
+

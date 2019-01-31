@@ -4,7 +4,7 @@ WRAPPER=$(if $(shell which clang), clang, gcc)
 CC=$(WRAPPER)
 LD=$(WRAPPER)
 CFLAGS=-Wall -W -Werror -g
-LDFLAGS=-lpthread -lrt
+#LDFLAGS=-lpthread -lrt
 
 # Le nom de l'exécutable à fabriquer
 EXE=pawnee
