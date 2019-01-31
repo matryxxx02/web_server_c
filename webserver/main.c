@@ -2,9 +2,15 @@
 # include <stdio.h>
 # include <string.h>
 # include <unistd.h>
+# include <signal.h>
 
 #define BLOCK_SIZE 1024
 
+void initialiser_signaux(void){
+	if (signal(SIGPIPE , SIG_IGN) == SIG_ERR) {
+		perror("signal");
+	}
+}
 
 int main ( int argc , char ** argv ) {
 
@@ -18,6 +24,8 @@ int main ( int argc , char ** argv ) {
 	if(socket_server == -1){
 		return 1;
 	}
+
+	initialiser_signaux();
 
 	int idx = 0;
 
