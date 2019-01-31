@@ -14,6 +14,14 @@ int creer_serveur(int port){
 		return -1;
 	}
 
+	//modification du comportement des socket (pouvoir se reco tt de suite apres l'arret du serveur)
+	//toujours avant le bind !
+	int optval = 1;
+	if (setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1){
+		perror("Can not set SO_REUSEADDR option");
+		return -1;
+	}
+
 	//Attachement de la socket serveur sur toutes les interfaces
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET; /* Socket ipv4 */
