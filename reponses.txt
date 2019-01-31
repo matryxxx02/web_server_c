@@ -1,7 +1,7 @@
 
 3.2.1 Test de votre programme : 
 
-	1. Cela deconnecte le client.
+	1. Cela deconnecte le client et il faut attendreun peu avant de relancer le serveur.
 
 	2. Cela affiche :"Connection to localhost port 8080 [tcp/search-agent] succeeded!" l'option -z sert a verifier si la connection au serveur localhost et au port 8080 est possible sans envoyer de données au serveur (Connection/Deconnection)
 	Cela STOP le serveur a cause du write qui ecrit vers un client qui c'est deconnecté, il recoit donc un signal comme avec les pipes qui kill le processus.
