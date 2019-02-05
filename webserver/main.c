@@ -3,19 +3,21 @@
 # include <string.h>
 # include <unistd.h>
 # include <signal.h>
-#include <sys/wait.h>
-
+# include <sys/wait.h>
+# include <stdlib.h>
 #define BLOCK_SIZE 1024
 
-void traitement_signal(int sig) {
-	printf("Signal %d reçu\n", sig);
+void traitement_signal() {
+	waitpid(-1,NULL,0);
 }
 
 void initialiser_signaux(void){
 	//processus zombies
 	struct sigaction sa;
-	sa.sa_handler = traitement_signal; sigemptyset(&sa.sa_mask);
+	sa.sa_handler = traitement_signal;
+	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
+	printf("Signal lmmll reçu\n");
 	if (sigaction(SIGCHLD , &sa, NULL) == -1) {
 		perror("sigaction(SIGCHLD)");
 	}
@@ -67,19 +69,14 @@ int main ( int argc , char ** argv ) {
 			while((s=read(socket_client,&buf,BLOCK_SIZE))>0){
 				write(socket_client,&buf,s);
 			}
-
-			int statut;
-    	 	int options = 0;
-	      	waitpid(pid, &statut, options);
-
+			exit(0);
 
 		}else{
 			//dans le pere
 			close(socket_client);
-		}		
+		}
+
 	}
-
-
 	printf("Need an advice ?\n");
 	return 0;
 }
