@@ -32,7 +32,7 @@ void initialiser_signaux(void){
 }
 
 void messageBienvenu (int socket_client) {
-	int fd = open("../ressources/Bienvenu.html", O_RDONLY);
+	int fd = open("../ressources/Bienvenue.html", O_RDONLY);
 	int s = 0;
 	char buf[BLOCK_SIZE];
 
