@@ -44,7 +44,7 @@ int main ( int argc , char ** argv ) {
 	initialiser_signaux();
 
 	while(1){
-		int s;
+		//int s = 0;
 		char buf[BLOCK_SIZE];
 		int socket_client = accept_(socket_server);		
 
@@ -66,9 +66,11 @@ int main ( int argc , char ** argv ) {
 			write(socket_client , message_bienvenue3 , strlen(message_bienvenue3));
 
 			//fonction echo avec le client (renvoi ce que le client ecrit)
-			while((s=read(socket_client,&buf,BLOCK_SIZE))>0){
-				write(socket_client,&buf,s);
+			FILE * file = fdopen(socket_client,"w+");
+			while(strcmp(fgets(buf,BLOCK_SIZE,file), "\r\n") != 0){
+				fprintf(file, buf);
 			}
+			printf("fin\n");
 			exit(0);
 
 		}else{
