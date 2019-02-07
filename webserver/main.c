@@ -68,8 +68,10 @@ int main ( int argc , char ** argv ) {
 			//fonction echo avec le client (renvoi ce que le client ecrit)
 			FILE * file = fdopen(socket_client,"w+");
 			while(strcmp(fgets(buf,BLOCK_SIZE,file), "\r\n") != 0){
-				fprintf(file, buf);
+				//fprintf(file, buf);
+				printf("%s\n",buf);
 			}
+			
 			printf("fin\n");
 			exit(0);
 
