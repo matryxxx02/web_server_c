@@ -75,7 +75,7 @@ int main ( int argc , char ** argv ) {
 					//fprintf(file,"%s%s",nom,buf);
 				}
 				messageBienvenu(socket_client);
-			}else {
+			} else {
 			char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
 			fprintf(file,"%s%s",nom,reponse);
 			}
