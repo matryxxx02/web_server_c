@@ -69,15 +69,19 @@ int main ( int argc , char ** argv ) {
 
 			char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
-			if(strcmp(fgets(buf,BLOCK_SIZE,file), "GET / HTTP/1.1\r\n") == 0){
+			char * requete = fgets(buf,BLOCK_SIZE,file);
+			if(strcmp(requete, "GET / HTTP/1.1\r\n") == 0){
 				while(strcmp(fgets(buf,BLOCK_SIZE,file), "\r\n") != 0){
 					//Lignes ignorées
 					//fprintf(file,"%s%s",nom,buf);
 				}
 				messageBienvenu(socket_client);
-			} else {
-			char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
-			fprintf(file,"%s%s",nom,reponse);
+			} else if(strcmp(requete, "GET /inexistant HTTP/1.1\r\n") == 0){
+				char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
+				fprintf(file,"%s%s",nom,reponse);
+			}else {
+				char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
+				fprintf(file,"%s%s",nom,reponse);
 			}
 			exit(0);
 
