@@ -35,7 +35,7 @@ void messageBienvenu (int socket_client) {
 	int fd = open("../ressources/Bienvenue.html", O_RDONLY);
 	int s = 0;
 	char buf[BLOCK_SIZE];
-	char * reponseHttp = "HTTP/1.1 200 OK\r\n\r\n";
+	char * reponseHttp = "HTTP/1.1 200 OK\r\nContent-Lenght: 549\r\n\r\n";
 
 	write(socket_client,reponseHttp,strlen(reponseHttp));
 	while((s=read(fd,&buf,BLOCK_SIZE))>0){
