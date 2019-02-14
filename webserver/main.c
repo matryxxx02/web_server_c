@@ -1,5 +1,6 @@
 # include "socket.h"
 # include <stdio.h>
+# include "http_parse.h"
 # include <string.h>
 # include <signal.h>
 # include <stdlib.h>
@@ -55,11 +56,12 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream){
 
 	if(buffer == NULL){
 		printf("client déco !!\n");
-		exit(0)
+		exit(0);
 	}
 
 	return buffer;
 }
+
 
 int main ( int argc , char ** argv ) {
 
@@ -87,17 +89,19 @@ int main ( int argc , char ** argv ) {
 
 			char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
-			char * requete = fgets_or_exit(buf,BLOCK_SIZE,file);
-			if(strcmp(requete, "GET / HTTP/1.1\r\n") == 0){
-				while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,file), "\r\n") != 0){
-					//Lignes ignorées
-					//fprintf(file,"%s%s",nom,buf);
+			http_request requete;
+			if(parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete)){
+				if(strcmp(requete.target, "/inexistant") == 0){
+					char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
+					fprintf(file,"%s%s",nom,reponse);
+				}else {
+					while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,file), "\r\n") != 0){
+						//Lignes ignorées
+						//fprintf(file,"%s%s",nom,buf);
+					}
+					messageBienvenu(socket_client);
 				}
-				messageBienvenu(socket_client);
-			} else if(strcmp(requete, "GET /inexistant HTTP/1.1\r\n") == 0){
-				char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
-				fprintf(file,"%s%s",nom,reponse);
-			}else {
+			} else {
 				char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
 				fprintf(file,"%s%s",nom,reponse);
 			}
