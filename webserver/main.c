@@ -49,6 +49,18 @@ void messageBienvenu (int socket_client) {
 	}
 }
 
+char *fgets_or_exit(char *buffer, int size, FILE *stream){
+	
+	buffer = fgets(buffer,size,stream);
+
+	if(buffer == NULL){
+		printf("client déco !!\n");
+		exit(0)
+	}
+
+	return buffer;
+}
+
 int main ( int argc , char ** argv ) {
 
 	/* Arnold Robbins in the LJ of February ’95 , describing RCS */
@@ -75,9 +87,9 @@ int main ( int argc , char ** argv ) {
 
 			char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
-			char * requete = fgets(buf,BLOCK_SIZE,file);
+			char * requete = fgets_or_exit(buf,BLOCK_SIZE,file);
 			if(strcmp(requete, "GET / HTTP/1.1\r\n") == 0){
-				while(strcmp(fgets(buf,BLOCK_SIZE,file), "\r\n") != 0){
+				while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,file), "\r\n") != 0){
 					//Lignes ignorées
 					//fprintf(file,"%s%s",nom,buf);
 				}
