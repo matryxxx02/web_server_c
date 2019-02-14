@@ -12,7 +12,13 @@
 #define BLOCK_SIZE 1024
 
 void traitement_signal() {
-	waitpid(-1,NULL,0);
+	int s;
+	waitpid(-1,&s,WNOHANG);
+	//WifSignaled renvoie vrai si le fils s'est terminé à cause d'un signal -> erreur de segmentation
+	if(WIFSIGNALED(s)){
+		fprintf(stderr, "Processus arrété par le signal : %d\n", WTERMSIG(s)); // Numero 11 = erreur de segementation
+	}
+
 }
 
 void initialiser_signaux(void){
