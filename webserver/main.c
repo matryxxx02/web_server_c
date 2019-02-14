@@ -51,23 +51,16 @@ void messageBienvenu (int socket_client) {
 }
 
 char *fgets_or_exit(char *buffer, int size, FILE *stream){
-	
 	buffer = fgets(buffer,size,stream);
-
 	if(buffer == NULL){
-		printf("client déco !!\n");
 		exit(0);
 	}
-
 	return buffer;
 }
 
 void skip_headers(FILE *client){
 	char buf[BLOCK_SIZE];
-	while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,client), "\r\n") != 0){
-		//Lignes ignorées
-		//fprintf(file,"%s%s",nom,buf);
-	}
+	while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,client), "\r\n") != 0){}
 }
 
 void send_status(FILE *client, int code, const char *reason_phrase){
@@ -106,23 +99,26 @@ int main ( int argc , char ** argv ) {
 		if(pid==0){
 			//dans le fils
 
-			char * nom = "Serveur : ";
+			//char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
 			http_request requete;
 			if(parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete)){
 				if(strcmp(requete.target, "/inexistant") == 0){
-					char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
-					fprintf(file,"%s%s",nom,reponse);
+					//char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
+					//fprintf(file,"%s%s",nom,reponse);
+					send_response(file, 404, "Not Found", "Not Found\r\n");
 				}else {
 					while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,file), "\r\n") != 0){
 						//Lignes ignorées
 						//fprintf(file,"%s%s",nom,buf);
 					}
+					send_response(file, 200, "OK","OK\r\n");
 					messageBienvenu(socket_client);
 				}
 			} else {
-				char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
-				fprintf(file,"%s%s",nom,reponse);
+				//char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
+				//fprintf(file,"%s%s",nom,reponse);
+				send_response(file,400,"Bad Request","Bad request\r\n");
 			}
 			exit(0);
 

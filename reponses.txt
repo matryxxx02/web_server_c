@@ -10,3 +10,8 @@
 
 	4. le 2 eme client se connecte mais le. serveur ne le traite pas puisque qu'il traite le premier client. Il faut donc que le premier client se deconnecte pour revenir au accept du debut et traiter ce client. Notre serveur gère qu'un seul client a la fois ! il va falloir cree un processus a chaque fois qu'un client se connecte !
 
+5.2.1 Manipulations préliminaires :
+
+	3) Cela me renvoi le message de bienvenue.
+
+	4) il y a le verbe HTTP, chemin de la ressource puis la version du protocole.
