@@ -62,6 +62,25 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream){
 	return buffer;
 }
 
+void skip_headers(FILE *client){
+	char buf[BLOCK_SIZE];
+	while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,client), "\r\n") != 0){
+		//Lignes ignorées
+		//fprintf(file,"%s%s",nom,buf);
+	}
+}
+
+void send_status(FILE *client, int code, const char *reason_phrase){
+	fprintf(client,"HTTP/1.1 %d %s", code, reason_phrase);
+}
+
+void send_response(FILE *client, int code, const char *reason_phrase, const char *message_body){
+	send_status(client,code,reason_phrase);
+	//Content-length... a ajouté 
+	fprintf(client, "\r\n");
+	fprintf(client, "%s:\r\n", message_body);
+}
+
 
 int main ( int argc , char ** argv ) {
 
