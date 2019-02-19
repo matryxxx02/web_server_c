@@ -43,7 +43,6 @@ void messageBienvenu (int socket_client) {
 	int s = 0;
 	char buf[BLOCK_SIZE];
 	char * reponseHttp = "HTTP/1.1 200 OK\r\nContent-Lenght: 549\r\n\r\n";
-
 	write(socket_client,reponseHttp,strlen(reponseHttp));
 	while((s=read(fd,&buf,BLOCK_SIZE))>0){
 		write(socket_client , buf , strlen(buf));
@@ -98,27 +97,22 @@ int main ( int argc , char ** argv ) {
 		int pid = fork();
 		if(pid==0){
 			//dans le fils
-
 			//char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
 			http_request requete;
-			if(parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete)){
-				if(strcmp(requete.target, "/inexistant") == 0){
-					//char * reponse = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Lenght: 15\r\n\r\n404 Not Found\r\n";
-					//fprintf(file,"%s%s",nom,reponse);
-					send_response(file, 404, "Not Found", "Not Found\r\n");
-				}else {
-					while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,file), "\r\n") != 0){
-						//Lignes ignorées
-						//fprintf(file,"%s%s",nom,buf);
-					}
-					send_response(file, 200, "OK","OK\r\n");
-					messageBienvenu(socket_client);
-				}
+			parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete);
+
+			//if(bad_request){
+			//	send_response(file,400,"Bad Request","Bad request\r\n");
+			//} else
+			 if (requete.method == HTTP_UNSUPPORTED){
+				send_response(file, 405, "Method Not Allowed", "Method Not Allowed\r\n");
+			} else if (strcmp(requete.target,"/") == 0){
+				skip_headers(file);
+				send_response(file, 200, "OK","OK\r\n");
+				messageBienvenu(socket_client);
 			} else {
-				//char * reponse = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Lenght: 17\r\n\r\n400 Bad Request\r\n";
-				//fprintf(file,"%s%s",nom,reponse);
-				send_response(file,400,"Bad Request","Bad request\r\n");
+				send_response(file, 404, "Not Found", "Not Found\r\n");
 			}
 			exit(0);
 
