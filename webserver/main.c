@@ -100,12 +100,11 @@ int main ( int argc , char ** argv ) {
 			//char * nom = "Serveur : ";
 			FILE * file = fdopen(socket_client,"w+");
 			http_request requete;
-			parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete);
+			int bad_request = parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete);
 
-			//if(bad_request){
-			//	send_response(file,400,"Bad Request","Bad request\r\n");
-			//} else
-			 if (requete.method == HTTP_UNSUPPORTED){
+			if(bad_request==0){
+				send_response(file,400,"Bad Request","Bad request\r\n");
+			} else if (requete.method == HTTP_UNSUPPORTED){
 				send_response(file, 405, "Method Not Allowed", "Method Not Allowed\r\n");
 			} else if (strcmp(requete.target,"/") == 0){
 				skip_headers(file);
