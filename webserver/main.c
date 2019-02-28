@@ -75,6 +75,43 @@ void send_response(FILE *client, int code, const char *reason_phrase, const char
 	fprintf(client, "%s\r\n", message_body);
 }
 
+char *rewrite_target(char *target){
+	char *path = malloc(strlen(target)*sizeof(char));
+	int i = 0;
+	int idx = 1;
+	while(target[idx] != '?' && i < (int)strlen(target)){
+		path[i] = target[idx];
+		i++;
+		idx++;
+	}
+	return path;
+}
+
+FILE *check_and_open(const char *target, const char *document_root){
+
+	struct stat *buf = NULL;
+	char *fichier = malloc(sizeof(char)*(strlen(target)+strlen(document_root)));
+	printf("fich: %s\n", fichier);
+	strcat(fichier,document_root);
+	printf("fich: %s\n", fichier);
+	strcat(fichier,target);
+	printf("fich: %s\n", fichier);
+
+	//verifie si le fichier est regulier
+	if (stat(fichier, buf) == -1)
+    {
+      perror(fichier);
+      return NULL;
+    }
+ 
+    if (S_ISREG(buf->st_mode)){
+    	FILE *fd = fopen(fichier,"r");
+    	return fd;
+    } else {
+    	return NULL;
+    }
+
+}
 
 int main ( int argc , char ** argv ) {
 
