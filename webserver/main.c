@@ -38,15 +38,18 @@ void initialiser_signaux(void){
 	}
 }
 
-void messageBienvenu (int socket_client) {
+char* lireMessageBienvenu () {
 	int fd = open("../ressources/Bienvenue.html", O_RDONLY);
 	int s = 0;
 	char buf[BLOCK_SIZE];
-	char * reponseHttp = "HTTP/1.1 200 OK\r\nContent-Lenght: 549\r\n\r\n";
-	write(socket_client,reponseHttp,strlen(reponseHttp));
+	char *msg = malloc(1024);
+	int size = 0;
 	while((s=read(fd,&buf,BLOCK_SIZE))>0){
-		write(socket_client , buf , strlen(buf));
+		msg = strcat(msg,buf);
+		size = size + s;
 	}
+	msg = realloc(msg, size);
+	return msg;
 }
 
 char *fgets_or_exit(char *buffer, int size, FILE *stream){
@@ -63,14 +66,13 @@ void skip_headers(FILE *client){
 }
 
 void send_status(FILE *client, int code, const char *reason_phrase){
-	fprintf(client,"HTTP/1.1 %d %s", code, reason_phrase);
+	fprintf(client,"HTTP/1.1 %d %s\r\n", code, reason_phrase);
 }
 
 void send_response(FILE *client, int code, const char *reason_phrase, const char *message_body){
 	send_status(client,code,reason_phrase);
-	//Content-length... a ajouté 
-	fprintf(client, "\r\n");
-	fprintf(client, "%s:\r\n", message_body);
+	fprintf(client, "Content-Lenght: %d\r\n\r\n",(int) strlen(message_body));
+	fprintf(client, "%s\r\n", message_body);
 }
 
 
@@ -103,15 +105,14 @@ int main ( int argc , char ** argv ) {
 			int bad_request = parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete);
 
 			if(bad_request==0){
-				send_response(file,400,"Bad Request","Bad request\r\n");
+				send_response(file,400,"Bad Request","400:Bad request\r\n");
 			} else if (requete.method == HTTP_UNSUPPORTED){
-				send_response(file, 405, "Method Not Allowed", "Method Not Allowed\r\n");
+				send_response(file, 405, "Method Not Allowed", "405:Method Not Allowed\r\n");
 			} else if (strcmp(requete.target,"/") == 0){
 				skip_headers(file);
-				send_response(file, 200, "OK","OK\r\n");
-				messageBienvenu(socket_client);
+				send_response(file, 200, "OK", lireMessageBienvenu());
 			} else {
-				send_response(file, 404, "Not Found", "Not Found\r\n");
+				send_response(file, 404, "Not Found", "404:Not Found\r\n");
 			}
 			exit(0);
 
