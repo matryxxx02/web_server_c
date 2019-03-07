@@ -60,6 +60,18 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream){
 	return buffer;
 }
 
+//fonction qui retourne la taille d’un fichier déjà ou- vert à partir de son descripteur
+int get_file_size(int fd) {
+	struct stat *buf = NULL;
+	fstat(fd,buf);
+	//on regarde dans la structure la taille du fichier.
+	if (S_ISREG(buf->st_mode)){
+    	return buf->st_size;
+    } else {
+    	return -1;
+    }
+}
+
 void skip_headers(FILE *client){
 	char buf[BLOCK_SIZE];
 	while(strcmp(fgets_or_exit(buf,BLOCK_SIZE,client), "\r\n") != 0){}
@@ -71,7 +83,7 @@ void send_status(FILE *client, int code, const char *reason_phrase){
 
 void send_response(FILE *client, int code, const char *reason_phrase, const char *message_body){
 	send_status(client,code,reason_phrase);
-	fprintf(client, "Content-Lenght: %d\r\n\r\n",(int) strlen(message_body));
+	fprintf(client, "Content-Lenght: %d\r\n\r\n",get_file_size(fileno(client)));
 	fprintf(client, "%s\r\n", message_body);
 }
 
@@ -113,40 +125,27 @@ FILE *check_and_open(const char *target, const char *document_root){
 
 }
 
-//fonction qui retourne la taille d’un fichier déjà ou- vert à partir de son descripteur
-int get_file_size(int fd) {
-	struct stat *buf;
-	fstat(fd,buf);
-	//on regarde dans la structure la taille du fichier.
-	if (S_ISREG(buf->st_mode)){
-    	return buf->st_size;
-    } else {
-    	return NULL;
-    }
+// int copy(FILE *in, FILE *out){
+// 	char buffer[BLOCK_SIZE];
+// 	int s;
+// 	int res = 0;
 
-}
-
-int copy(FILE *in, FILE *out){
-	char buffer[BLOCK_SIZE];
-	int s;
-	int res = 0;
-
-	s = read(fd_source, buffer, BLOCK_SIZE);
-	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
-	while (s > 0){
-	  if (write(fd_dest, buffer, s) == -1){
-	     perror("write");
-	     return -1;
-	  }
-	  res += s;
-	  s = read(fd_source, buffer, BLOCK_SIZE);
-	}
-	if (s == -1){
-	  perror("read");
-	  return -1;
-	}
-	return res;
-}
+// 	s = read(fd_source, buffer, BLOCK_SIZE);
+// 	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
+// 	while (s > 0){
+// 	  if (write(fd_dest, buffer, s) == -1){
+// 	     perror("write");
+// 	     return -1;
+// 	  }
+// 	  res += s;
+// 	  s = read(fd_source, buffer, BLOCK_SIZE);
+// 	}
+// 	if (s == -1){
+// 	  perror("read");
+// 	  return -1;
+// 	}
+// 	return res;
+// }
 
 int main ( int argc , char ** argv ) {
 
