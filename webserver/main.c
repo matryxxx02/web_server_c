@@ -90,9 +90,9 @@ char *rewrite_target(char *target){
 FILE *check_and_open(const char *target, const char *document_root){
 
 	struct stat *buf = NULL;
-	char *fichier = malloc(sizeof(char)*(strlen(target)+strlen(document_root)));
-	printf("fich: %s\n", fichier);
-	strcat(fichier,document_root);
+	char *fichier = malloc(sizeof(char)*(strlen(target)+strlen(document_root))+1);
+	printf("fich: %s\n", fichier);	
+	strcpy(fichier,document_root);
 	printf("fich: %s\n", fichier);
 	strcat(fichier,target);
 	printf("fich: %s\n", fichier);
@@ -111,6 +111,41 @@ FILE *check_and_open(const char *target, const char *document_root){
     	return NULL;
     }
 
+}
+
+//fonction qui retourne la taille d’un fichier déjà ou- vert à partir de son descripteur
+int get_file_size(int fd) {
+	struct stat *buf;
+	fstat(fd,buf);
+	//on regarde dans la structure la taille du fichier.
+	if (S_ISREG(buf->st_mode)){
+    	return buf->st_size;
+    } else {
+    	return NULL;
+    }
+
+}
+
+int copy(FILE *in, FILE *out){
+	char buffer[BLOCK_SIZE];
+	int s;
+	int res = 0;
+
+	s = read(fd_source, buffer, BLOCK_SIZE);
+	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
+	while (s > 0){
+	  if (write(fd_dest, buffer, s) == -1){
+	     perror("write");
+	     return -1;
+	  }
+	  res += s;
+	  s = read(fd_source, buffer, BLOCK_SIZE);
+	}
+	if (s == -1){
+	  perror("read");
+	  return -1;
+	}
+	return res;
 }
 
 int main ( int argc , char ** argv ) {
