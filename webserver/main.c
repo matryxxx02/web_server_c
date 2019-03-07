@@ -64,12 +64,7 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream){
 int get_file_size(int fd) {
 	struct stat *buf = NULL;
 	fstat(fd,buf);
-	//on regarde dans la structure la taille du fichier.
-	if (S_ISREG(buf->st_mode)){
-    	return buf->st_size;
-    } else {
-    	return -1;
-    }
+    return buf->st_size;
 }
 
 void skip_headers(FILE *client){
@@ -83,7 +78,7 @@ void send_status(FILE *client, int code, const char *reason_phrase){
 
 void send_response(FILE *client, int code, const char *reason_phrase, const char *message_body){
 	send_status(client,code,reason_phrase);
-	fprintf(client, "Content-Lenght: %d\r\n\r\n",get_file_size(fileno(client)));
+	fprintf(client, "Content-Lenght: %d\r\n\r\n", (int) strlen(message_body));
 	fprintf(client, "%s\r\n", message_body);
 }
 
@@ -125,27 +120,42 @@ FILE *check_and_open(const char *target, const char *document_root){
 
 }
 
-// int copy(FILE *in, FILE *out){
-// 	char buffer[BLOCK_SIZE];
-// 	int s;
-// 	int res = 0;
+int sendfile(int fdest, int fsource, int fileSize){
+	char buffer[fileSize];
+	int s;
+	int total = 0;
 
-// 	s = read(fd_source, buffer, BLOCK_SIZE);
-// 	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
-// 	while (s > 0){
-// 	  if (write(fd_dest, buffer, s) == -1){
-// 	     perror("write");
-// 	     return -1;
-// 	  }
-// 	  res += s;
-// 	  s = read(fd_source, buffer, BLOCK_SIZE);
-// 	}
-// 	if (s == -1){
-// 	  perror("read");
-// 	  return -1;
-// 	}
-// 	return res;
-// }
+	// On lit un premier morceau read retourne le nombre d'octet lu. Le
+	// troisième paramètre donne la taille MAXIMALE à lire. Il se peut
+	// donc que read lise MOINS que BLOCK_SIZE
+	s = read(fsource, buffer, fileSize);
+	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
+	while (s > 0)
+	{
+	  // On écrit le nombre d'octets lus dans le fichier de destination
+	  // Le buffer contient les données lues par read
+	  if (write(fdest, buffer, s) == -1)
+	  {
+	     perror("write");
+	     return -1;
+	  }
+	  total += s;
+	  // On lit le morceau suivant
+	  s = read(fsource, buffer, BLOCK_SIZE);
+	}
+	if (s == -1)
+	{
+	  perror("read");
+	  return -1;
+	}
+	return total;
+}
+
+int copy(FILE *in, FILE *out){
+	fprintf(out, "Content-Lenght: %d\r\n\r\n", get_file_size(fileno(in)));
+	fflush(out);
+	return sendfile(fileno(out),fileno(in),get_file_size(fileno(in)));
+}
 
 int main ( int argc , char ** argv ) {
 
