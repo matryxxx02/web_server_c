@@ -11,6 +11,8 @@
 # include <fcntl.h>
 
 #define BLOCK_SIZE 1024
+//selon ou on place le projet
+#define DOCUMENT_ROOT "../ressources/"
 
 void traitement_signal() {
 	int s;
@@ -184,14 +186,16 @@ int main ( int argc , char ** argv ) {
 			FILE * file = fdopen(socket_client,"w+");
 			http_request requete;
 			int bad_request = parse_http_request(fgets_or_exit(buf,BLOCK_SIZE,file),&requete);
+			FILE * ressource= check_and_open(rewrite_target(requete.target),DOCUMENT_ROOT);
 
 			if(bad_request==0){
 				send_response(file,400,"Bad Request","400:Bad request\r\n");
 			} else if (requete.method == HTTP_UNSUPPORTED){
 				send_response(file, 405, "Method Not Allowed", "405:Method Not Allowed\r\n");
-			} else if (strcmp(requete.target,"/") == 0){
+			} else if (ressource != NULL) {
 				skip_headers(file);
 				send_response(file, 200, "OK", lireMessageBienvenu());
+				copy(ressource,file);
 			} else {
 				send_response(file, 404, "Not Found", "404:Not Found\r\n");
 			}
