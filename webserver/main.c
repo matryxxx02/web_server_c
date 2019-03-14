@@ -11,8 +11,6 @@
 # include <fcntl.h>
 
 #define BLOCK_SIZE 1024
-//selon ou on place le projet
-#define DOCUMENT_ROOT "/Users/nicolasfernandes/git/prog_sys_avance/ressources/"
 
 void traitement_signal() {
 	int s;
@@ -91,16 +89,16 @@ char *rewrite_target(char *target){
 	FILE *check_and_open(const char *target, const char *document_root){
 
 		struct stat buf;
-		char fichier[BLOCK_SIZE];//sizeof(char)*(strlen(target)+strlen(document_root))+1
-		snprintf(fichier, sizeof(fichier), "%s%s", document_root, target);
-		//verifie si le fichier est regulier
-		if (stat(fichier, &buf)==-1)
+		char path [sizeof(char)*(strlen(target)+strlen(document_root))+1];
+		snprintf(path, sizeof(path), "%s%s", document_root, target);
+		//verifie si le path est regulier
+		if (stat(path, &buf)==-1)
 	    {
-	      perror(fichier);
+	      perror(path);
 	      return NULL;
 	    }
 	    if (S_ISREG(buf.st_mode)){
-	    	FILE *fd = fopen(fichier,"r");
+	    	FILE *fd = fopen(path,"r");
 	    	return fd;
 	    } else {
 	    	return NULL;
@@ -153,6 +151,12 @@ int main (int argc , char ** argv) {
 		return 42;
 	}
 	
+	char * DOCUMENT_ROOT = "../ressources/";
+	if(argc > 1){
+		printf("%s\n", argv[1]);
+		DOCUMENT_ROOT =argv[1];
+	}
+
 	int socket_server = creer_serveur(8080);
 	if(socket_server == -1){
 		return 1;
