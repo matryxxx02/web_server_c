@@ -12,7 +12,7 @@
 
 #define BLOCK_SIZE 1024
 //selon ou on place le projet
-#define DOCUMENT_ROOT "../ressources/"
+#define DOCUMENT_ROOT "/Users/nicolasfernandes/git/prog_sys_avance/webserver/"
 
 void traitement_signal() {
 	int s;
@@ -96,31 +96,35 @@ char *rewrite_target(char *target){
 	return path;
 }
 
-FILE *check_and_open(const char *target, const char *document_root){
+// FILE *check_and_open(const char *target, const char *document_root) {
+//     char path[BLOCK_SIZE];
+//     snprintf(path, sizeof(path), "%s%s", document_root, target);
+//     printf("fich: %s\n", path);
+//     return fopen(path, "r");
+// }
+	FILE *check_and_open(const char *target, const char *document_root){
 
-	struct stat *buf = NULL;
-	char *fichier = malloc(sizeof(char)*(strlen(target)+strlen(document_root))+1);
-	printf("fich: %s\n", fichier);	
-	strcpy(fichier,document_root);
-	printf("fich: %s\n", fichier);
-	strcat(fichier,target);
-	printf("fich: %s\n", fichier);
+		struct stat buf;
+		char fichier[BLOCK_SIZE];//sizeof(char)*(strlen(target)+strlen(document_root))+1
+		snprintf(fichier, sizeof(fichier), "%s%s", document_root, target);
+		
+		printf("fich: %s\n", fichier);
 
-	//verifie si le fichier est regulier
-	if (stat(fichier, buf) == -1)
-    {
-      perror(fichier);
-      return NULL;
-    }
- 
-    if (S_ISREG(buf->st_mode)){
-    	FILE *fd = fopen(fichier,"r");
-    	return fd;
-    } else {
-    	return NULL;
-    }
-
-}
+		//verifie si le fichier est regulier
+		if (stat(fichier, &buf) == -1)
+	    {
+	      printf("chemin : %s\n", fichier);
+	      perror(fichier);
+	      return NULL;
+	    }
+	 	
+	    if (S_ISREG(buf.st_mode)){
+	    	FILE *fd = fopen(fichier,"r");
+	    	return fd;
+	    } else {
+	    	return NULL;
+	    }
+	}
 
 int sendfile(int fdest, int fsource, int fileSize){
 	char buffer[fileSize];
