@@ -79,7 +79,7 @@ char *rewrite_target(char *target){
 	}
 	if(target[idx] == '?')
 		target[idx] = '\0';
-	if(target[idx] == '/'){
+	if(target[idx-1] == '/'){
 		strcat(target, "index.html");
 	}
 	return target;
