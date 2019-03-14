@@ -69,23 +69,22 @@ void send_response(FILE *client, int code, const char *reason_phrase, const char
 }
 
 char *rewrite_target(char *target){
-	char *path = malloc(strlen(target)*sizeof(char));
-	int i = 0;
-	int idx = 1;
-	while(target[idx] != '?' && i < (int)strlen(target)){
-		path[i] = target[idx];
-		i++;
+	int idx = 0;
+	while(target[idx] != '?' && idx < (int)strlen(target)){
+		if(target[idx] == '.' && idx+1 < (int)strlen(target) && target[idx+1] == '.'){
+			target[idx] = '/';
+			target[idx+1] = '/';
+		}
 		idx++;
 	}
-	return path;
+	if(target[idx] == '?')
+		target[idx] = '\0';
+	if(target[idx] == '/'){
+		strcat(target, "index.html");
+	}
+	return target;
 }
 
-// FILE *check_and_open(const char *target, const char *document_root) {
-//     char path[BLOCK_SIZE];
-//     snprintf(path, sizeof(path), "%s%s", document_root, target);
-//     printf("fich: %s\n", path);
-//     return fopen(path, "r");
-// }
 	FILE *check_and_open(const char *target, const char *document_root){
 
 		struct stat buf;
@@ -110,22 +109,15 @@ int sendfile(int fdest, int fsource, int fileSize){
 	int s;
 	int total = 0;
 
-	// On lit un premier morceau read retourne le nombre d'octet lu. Le
-	// troisième paramètre donne la taille MAXIMALE à lire. Il se peut
-	// donc que read lise MOINS que BLOCK_SIZE
 	s = read(fsource, buffer, fileSize);
-	// Tant qu'il y a des octets lus (0 -> fin de fichier, -1 -> erreur)
 	while (s > 0)
 	{
-	  // On écrit le nombre d'octets lus dans le fichier de destination
-	  // Le buffer contient les données lues par read
 	  if (write(fdest, buffer, s) == -1)
 	  {
 	     perror("write");
 	     return -1;
 	  }
 	  total += s;
-	  // On lit le morceau suivant
 	  s = read(fsource, buffer, BLOCK_SIZE);
 	}
 	if (s == -1)
@@ -154,7 +146,7 @@ int main (int argc , char ** argv) {
 	char * DOCUMENT_ROOT = "../ressources/";
 	if(argc > 1){
 		printf("%s\n", argv[1]);
-		DOCUMENT_ROOT =argv[1];
+		DOCUMENT_ROOT = strcat(argv[1],"/");
 	}
 
 	int socket_server = creer_serveur(8080);
