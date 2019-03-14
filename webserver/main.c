@@ -12,7 +12,7 @@
 
 #define BLOCK_SIZE 1024
 //selon ou on place le projet
-#define DOCUMENT_ROOT "/Users/nicolasfernandes/git/prog_sys_avance/webserver/"
+#define DOCUMENT_ROOT "/Users/nicolasfernandes/git/prog_sys_avance/ressources/"
 
 void traitement_signal() {
 	int s;
@@ -40,20 +40,6 @@ void initialiser_signaux(void){
 	}
 }
 
-char* lireMessageBienvenu () {
-	int fd = open("../ressources/Bienvenue.html", O_RDONLY);
-	int s = 0;
-	char buf[BLOCK_SIZE];
-	char *msg = malloc(1024);
-	int size = 0;
-	while((s=read(fd,&buf,BLOCK_SIZE))>0){
-		msg = strcat(msg,buf);
-		size = size + s;
-	}
-	msg = realloc(msg, size);
-	return msg;
-}
-
 char *fgets_or_exit(char *buffer, int size, FILE *stream){
 	buffer = fgets(buffer,size,stream);
 	if(buffer == NULL){
@@ -64,9 +50,9 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream){
 
 //fonction qui retourne la taille d’un fichier déjà ou- vert à partir de son descripteur
 int get_file_size(int fd) {
-	struct stat *buf = NULL;
-	fstat(fd,buf);
-    return buf->st_size;
+	struct stat buf;
+	fstat(fd,&buf);
+    return buf.st_size;
 }
 
 void skip_headers(FILE *client){
@@ -80,7 +66,7 @@ void send_status(FILE *client, int code, const char *reason_phrase){
 
 void send_response(FILE *client, int code, const char *reason_phrase, const char *message_body){
 	send_status(client,code,reason_phrase);
-	fprintf(client, "Content-Lenght: %d\r\n\r\n", (int) strlen(message_body));
+	fprintf(client, "Content-Lenght: %d\r\n\r\n", (int)strlen(message_body));
 	fprintf(client, "%s\r\n", message_body);
 }
 
@@ -107,17 +93,12 @@ char *rewrite_target(char *target){
 		struct stat buf;
 		char fichier[BLOCK_SIZE];//sizeof(char)*(strlen(target)+strlen(document_root))+1
 		snprintf(fichier, sizeof(fichier), "%s%s", document_root, target);
-		
-		printf("fich: %s\n", fichier);
-
 		//verifie si le fichier est regulier
-		if (stat(fichier, &buf) == -1)
+		if (stat(fichier, &buf)==-1)
 	    {
-	      printf("chemin : %s\n", fichier);
 	      perror(fichier);
 	      return NULL;
 	    }
-	 	
 	    if (S_ISREG(buf.st_mode)){
 	    	FILE *fd = fopen(fichier,"r");
 	    	return fd;
@@ -158,12 +139,13 @@ int sendfile(int fdest, int fsource, int fileSize){
 }
 
 int copy(FILE *in, FILE *out){
+	send_status(out,200,"OK");
 	fprintf(out, "Content-Lenght: %d\r\n\r\n", get_file_size(fileno(in)));
 	fflush(out);
 	return sendfile(fileno(out),fileno(in),get_file_size(fileno(in)));
 }
 
-int main ( int argc , char ** argv ) {
+int main (int argc , char ** argv) {
 
 	/* Arnold Robbins in the LJ of February ’95 , describing RCS */
 	if ( argc > 1 && strcmp ( argv [1] , " - advice " ) == 0) {
@@ -198,7 +180,6 @@ int main ( int argc , char ** argv ) {
 				send_response(file, 405, "Method Not Allowed", "405:Method Not Allowed\r\n");
 			} else if (ressource != NULL) {
 				skip_headers(file);
-				send_response(file, 200, "OK", lireMessageBienvenu());
 				copy(ressource,file);
 			} else {
 				send_response(file, 404, "Not Found", "404:Not Found\r\n");
